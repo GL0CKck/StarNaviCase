@@ -1,34 +1,37 @@
-from django.contrib.auth.models import AbstractUser, PermissionsMixin, BaseUserManager
-from django.db import models, transaction
+from django.contrib.auth.models import (AbstractUser, BaseUserManager,
+                                        PermissionsMixin)
+from django.db import models
 from django.utils import timezone
 
 
 class UserManager(BaseUserManager):
 
-    def _create_user(self, email, password, **extra_fields):
+    def _create_user(self, username, email, password=None, **extra_fields):
+        if not username:
+            raise ValueError('Имя пользователя должно быть указанно')
         if not email:
-            raise ValueError('Проверте электронную почту')
-        try:
-            with transaction.atomic():
-                user = self.model(email=email, **extra_fields)
-                user.set_password(password)
-                user.save(using=self._db)
-                return user
-        except:
-            raise
+            raise ValueError('Почта пользователя должна быть указанна')
 
-    def create_user(self, email, password=None, **extra_fields):
+        email = self.normalize_email(email)
+        user = self.model(username=username, email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+
+        return user
+
+    def create_user(self, username, email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', False)
         extra_fields.setdefault('is_superuser', False)
-        return self._create_user(email, password=password, **extra_fields)
+        return self._create_user(self, username, email, password, **extra_fields)
 
-    def create_superuser(self, email, password=None, **extra_fields):
+    def create_superuser(self, username, email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
-        return self._create_user(email, password=password, **extra_fields)
+        return self._create_user(username, email, password=password, **extra_fields)
 
 
 class User(AbstractUser, PermissionsMixin):
+    username = models.CharField(db_index=True, max_length=55, unique=True)
     email = models.EmailField(max_length=30, unique=True)
     first_name = models.CharField(max_length=20, blank=True)
     last_name = models.CharField(max_length=25, blank=True)
@@ -36,14 +39,10 @@ class User(AbstractUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
 
-    objects = UserManager()
+    object = UserManager()
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name']
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        return self
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ('fist_name', 'last_name')
 
 
 class Post(models.Model):
