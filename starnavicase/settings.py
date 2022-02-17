@@ -9,10 +9,9 @@ https://docs.djangoproject.com/en/4.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
-import environ
-
 from pathlib import Path
-import os
+
+import environ
 
 env = environ.Env()
 environ.Env.read_env()
@@ -42,9 +41,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
+    'rest_framework',
 
     'main',
 ]
+
+REST_FRAMEWORK = {
+  'DEFAULT_AUTHENTICATION_CLASSES': (
+    'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+  ),
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -82,7 +89,7 @@ WSGI_APPLICATION = 'starnavicase.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'main',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': env('POSTGRE_DB'),
         'USER': env('POSTGRE_USER'),
         'PASSWORD': env('POSTGRE_PASSWORD'),
@@ -110,7 +117,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
+AUTH_USER_MODEL = 'main.User'
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
