@@ -1,12 +1,13 @@
 from django.shortcuts import render
 from rest_framework import status
+from rest_framework.mixins import UpdateModelMixin
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
-from .models import Post
-from .serializers import RegisterSerializer, LoginSerializer, PostsSerializer
+from .models import Post, UserPostRelations
+from .serializers import RegisterSerializer, LoginSerializer, PostsSerializer, UserPostRelationSerializer
 
 
 class RegisterUserApiView(APIView):
@@ -42,3 +43,15 @@ class PostCreateViewSet(ModelViewSet):
     def perform_create(self, serializer):
         serializer.validated_data['owner_post'] = self.request.user
         serializer.save()
+
+
+class PostLikeOrDislikeUser(UpdateModelMixin, GenericViewSet):
+    permission_classes = (IsAuthenticated, )
+    queryset = UserPostRelations.objects.all()
+    serializer_class = UserPostRelationSerializer
+    lookup_field = 'posts'
+
+    def get_object(self):
+        obj, _ = UserPostRelations.objects.get_or_create(user=self.request.user, posts_id=self.kwargs['posts'])
+
+        return obj

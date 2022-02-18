@@ -53,17 +53,15 @@ class PostReadersSerializer(serializers.ModelSerializer):
 
 class PostsSerializer(serializers.ModelSerializer):
     owner_post = serializers.CharField(source='owner_post.username', default='', read_only=True)
-    annotated_likes = serializers.IntegerField(read_only=True)
-    annotated_dislikes = serializers.IntegerField(read_only=True)
     readers = PostReadersSerializer(many=True, read_only=True)
 
     class Meta:
         model = Post
-        fields = ('id', 'title', 'text_post', 'readers', 'owner_post', 'annotated_likes', 'annotated_dislikes')
+        fields = ('id', 'title', 'text_post', 'readers', 'owner_post')
 
 
 class UserPostRelationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserPostRelations
-        fields = ('user', 'posts', 'like', 'dislike')
+        fields = ('user', 'posts', 'like_or_dislike')

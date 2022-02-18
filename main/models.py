@@ -55,7 +55,10 @@ class Post(models.Model):
 
 
 class UserPostRelations(models.Model):
-    like = models.BooleanField(default=False)
-    dislike = models.BooleanField(default=False)
+    LIKE_DISLIKE_CHOICES = (
+        (0, 'dislike'),
+        (1, 'like')
+    )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     posts = models.ForeignKey(Post, on_delete=models.CASCADE)
+    like_or_dislike = models.PositiveSmallIntegerField(choices=LIKE_DISLIKE_CHOICES, null=True)
