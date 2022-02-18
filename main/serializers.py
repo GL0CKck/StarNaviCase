@@ -36,7 +36,7 @@ class LoginSerializer(serializers.ModelSerializer):
         if user is None:
             raise serializers.ValidationError('User was not found')
         return {
-            'user': user.email
+            'user': user
         }
 
     class Meta:
@@ -65,3 +65,10 @@ class UserPostRelationSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserPostRelations
         fields = ('user', 'posts', 'like_or_dislike')
+
+
+class UserActivitySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('email', 'username', 'last_login')

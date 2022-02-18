@@ -1,13 +1,15 @@
 from django.shortcuts import render
 from rest_framework import status
+from rest_framework.generics import ListAPIView
 from rest_framework.mixins import UpdateModelMixin
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
-from .models import Post, UserPostRelations
-from .serializers import RegisterSerializer, LoginSerializer, PostsSerializer, UserPostRelationSerializer
+from .models import Post, UserPostRelations, User
+from .serializers import RegisterSerializer, LoginSerializer, PostsSerializer, UserPostRelationSerializer, \
+    UserActivitySerializer
 
 
 class RegisterUserApiView(APIView):
@@ -20,17 +22,6 @@ class RegisterUserApiView(APIView):
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-class LoginUserApiView(APIView):
-    permission_classes = (AllowAny, )
-    serializer_class = LoginSerializer
-
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class PostCreateViewSet(ModelViewSet):
@@ -55,3 +46,9 @@ class PostLikeOrDislikeUser(UpdateModelMixin, GenericViewSet):
         obj, _ = UserPostRelations.objects.get_or_create(user=self.request.user, posts_id=self.kwargs['posts'])
 
         return obj
+
+
+class LastLoginApiView(ListAPIView):
+    queryset = User.objects.all()
+    permission_classes = (IsAdminUser, )
+    serializer_class = UserActivitySerializer
