@@ -72,3 +72,23 @@ class UserActivitySerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('email', 'username', 'last_login', 'last_request')
+
+
+class StatisticsLikesSerializer(serializers.ModelSerializer):
+    annotated_like = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Post
+        fields = ('id', 'title', 'annotated_like')
+
+    def get_annotated_like(self, instance):
+        return UserPostRelations.objects.filter(posts=instance, like_or_dislike=1).count()
+
+
+class StatisticsLikesSerializer2(serializers.ModelSerializer):
+    annotated_like = serializers.IntegerField(read_only=True)
+    annotated_dislike = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Post
+        fields = ('id', 'title', 'annotated_like', 'annotated_dislike')

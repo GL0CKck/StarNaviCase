@@ -45,6 +45,9 @@ class User(AbstractUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('fist_name', 'last_name')
 
+    def __str__(self):
+        return self.email
+
 
 class Post(models.Model):
     title = models.CharField(max_length=124)
@@ -63,3 +66,4 @@ class UserPostRelations(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     posts = models.ForeignKey(Post, on_delete=models.CASCADE)
     like_or_dislike = models.PositiveSmallIntegerField(choices=LIKE_DISLIKE_CHOICES, null=True)
+    date_create = models.DateTimeField(auto_now_add=True)
