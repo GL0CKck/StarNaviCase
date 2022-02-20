@@ -71,4 +71,4 @@ class UserActivitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('email', 'username', 'last_login')
+        fields = ('email', 'username', 'last_login', 'last_request')
